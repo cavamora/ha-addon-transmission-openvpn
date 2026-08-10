@@ -13,32 +13,57 @@ read_option() {
   fi
 }
 
-export OPENVPN_PROVIDER="$(read_option OPENVPN_PROVIDER NORDVPN)"
-export OPENVPN_CONFIG="$(read_option OPENVPN_CONFIG '')"
-export OPENVPN_USERNAME="$(read_option OPENVPN_USERNAME '')"
+trim() {
+  sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
+}
+
+read_option_trimmed() {
+  read_option "$@" | trim
+}
+
+OPENVPN_PROVIDER_RAW="$(read_option_trimmed OPENVPN_PROVIDER NORDVPN)"
+export OPENVPN_PROVIDER="${OPENVPN_PROVIDER_RAW^^}"
+export OPENVPN_CONFIG="$(read_option_trimmed OPENVPN_CONFIG '')"
+export OPENVPN_USERNAME="$(read_option_trimmed OPENVPN_USERNAME '')"
 export OPENVPN_PASSWORD="$(read_option OPENVPN_PASSWORD '')"
-export LOCAL_NETWORK="$(read_option LOCAL_NETWORK '192.168.0.0/16')"
+export LOCAL_NETWORK="$(read_option_trimmed LOCAL_NETWORK '192.168.0.0/16')"
 
 export TRANSMISSION_HOME="/config/transmission-home"
-export TRANSMISSION_DOWNLOAD_DIR="$(read_option TRANSMISSION_DOWNLOAD_DIR /downloads/completed)"
-export TRANSMISSION_INCOMPLETE_DIR="$(read_option TRANSMISSION_INCOMPLETE_DIR /downloads/incomplete)"
-export TRANSMISSION_WATCH_DIR="$(read_option TRANSMISSION_WATCH_DIR /downloads/watch)"
-export TRANSMISSION_RPC_USERNAME="$(read_option TRANSMISSION_RPC_USERNAME '')"
+export TRANSMISSION_DOWNLOAD_DIR="$(read_option_trimmed TRANSMISSION_DOWNLOAD_DIR /downloads/completed)"
+export TRANSMISSION_INCOMPLETE_DIR="$(read_option_trimmed TRANSMISSION_INCOMPLETE_DIR /downloads/incomplete)"
+export TRANSMISSION_WATCH_DIR="$(read_option_trimmed TRANSMISSION_WATCH_DIR /downloads/watch)"
+export TRANSMISSION_RPC_USERNAME="$(read_option_trimmed TRANSMISSION_RPC_USERNAME '')"
 export TRANSMISSION_RPC_PASSWORD="$(read_option TRANSMISSION_RPC_PASSWORD '')"
 export TRANSMISSION_RPC_PORT=9091
-export TRANSMISSION_WEB_UI="$(read_option TRANSMISSION_WEB_UI transmission-web-control)"
+export TRANSMISSION_WEB_UI="$(read_option_trimmed TRANSMISSION_WEB_UI transmission-web-control)"
 
-export WEBPROXY_ENABLED="$(read_option WEBPROXY_ENABLED false)"
-export WEBPROXY_PORT="$(read_option WEBPROXY_PORT 8118)"
-export TZ="$(read_option TZ America/Sao_Paulo)"
+export WEBPROXY_ENABLED="$(read_option_trimmed WEBPROXY_ENABLED false)"
+export WEBPROXY_PORT="$(read_option_trimmed WEBPROXY_PORT 8118)"
+export TZ="$(read_option_trimmed TZ America/Sao_Paulo)"
 
 # The HA add-on maps /dev/net/tun from the host. If Haugene tries to recreate it
 # inside HAOS the mknod/rm path can fail with "Read-only file system".
 export CREATE_TUN_DEVICE=false
 
-mkdir -p /data/transmission-home /config
-if [[ ! -e /config/transmission-home ]]; then
-  ln -s /data/transmission-home /config/transmission-home
+# Haugene treats /data/transmission-home as a deprecated legacy location and
+# forcibly falls back to it if the directory exists. Earlier wrapper versions
+# created it, so migrate/rename it before starting to keep TRANSMISSION_HOME at
+# the upstream-recommended /config/transmission-home.
+mkdir -p /config
+if [[ -L /config/transmission-home ]]; then
+  legacy_target="$(readlink /config/transmission-home)"
+  rm -f /config/transmission-home
+  if [[ -d "$legacy_target" && ! -e /config/transmission-home ]]; then
+    mv "$legacy_target" /config/transmission-home
+  fi
+fi
+if [[ -d /data/transmission-home && ! -e /config/transmission-home ]]; then
+  mv /data/transmission-home /config/transmission-home
+fi
+if [[ -d /data/transmission-home ]]; then
+  backup="/data/transmission-home.legacy.$(date +%Y%m%d%H%M%S)"
+  echo "Moving deprecated /data/transmission-home out of the way to ${backup} so Haugene keeps TRANSMISSION_HOME=${TRANSMISSION_HOME}"
+  mv /data/transmission-home "$backup"
 fi
 
 mkdir -p "$TRANSMISSION_HOME" "$TRANSMISSION_DOWNLOAD_DIR" "$TRANSMISSION_INCOMPLETE_DIR" "$TRANSMISSION_WATCH_DIR"
