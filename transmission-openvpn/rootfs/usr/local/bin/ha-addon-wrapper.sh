@@ -69,7 +69,13 @@ export TRANSMISSION_WATCH_DIR="$(read_option_trimmed TRANSMISSION_WATCH_DIR /dow
 export TRANSMISSION_RPC_USERNAME="$(read_option_trimmed TRANSMISSION_RPC_USERNAME '')"
 export TRANSMISSION_RPC_PASSWORD="$(read_option TRANSMISSION_RPC_PASSWORD '')"
 export TRANSMISSION_RPC_PORT=9091
-export TRANSMISSION_WEB_UI="$(read_option_trimmed TRANSMISSION_WEB_UI transmission-web-control)"
+TRANSMISSION_WEB_UI_RAW="$(read_option_trimmed TRANSMISSION_WEB_UI default)"
+if [[ "$TRANSMISSION_WEB_UI_RAW" == "transmission-web-control" ]]; then
+  echo "WARNING: transmission-web-control is not reliable with the current upstream Transmission RPC/Web UI; using the built-in default UI instead."
+  export TRANSMISSION_WEB_UI="default"
+else
+  export TRANSMISSION_WEB_UI="$TRANSMISSION_WEB_UI_RAW"
+fi
 
 export WEBPROXY_ENABLED="$(read_option_trimmed WEBPROXY_ENABLED false)"
 export WEBPROXY_PORT="$(read_option_trimmed WEBPROXY_PORT 8118)"

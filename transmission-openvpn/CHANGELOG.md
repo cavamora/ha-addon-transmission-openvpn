@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.11
+
+- Use Transmission's built-in default web UI by default and automatically fall back to it when old saved options request `transmission-web-control`. This avoids broken add-torrent/path behavior such as `undefined` download locations with the current upstream image.
+
 ## 1.0.10
 
 - Downgrade NordVPN setup ICMP ping failures to warnings after the wrapper has already validated the exact `.ovpn` download URL with HTTPS. This avoids false startup failures on HAOS when `downloads.nordcdn.com` is reachable by curl but not ping.
