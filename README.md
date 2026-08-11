@@ -1,5 +1,13 @@
 # Home Assistant Add-on: Transmission OpenVPN
 
+## About this fork
+
+This Home Assistant add-on repository is a small fork/wrapper created to make it easier to use the current upstream `master` version of [`haugene/transmission-openvpn`](https://github.com/haugene/docker-transmission-openvpn), including the login-related fix that is already available there while the corresponding PR/release is being accepted upstream.
+
+The intention is not to replace Haugene's project. This repository only packages the upstream image as a Home Assistant add-on and carries minimal wrapper/configuration changes needed for HAOS usage until the upstream fix is fully released/available through the normal channel.
+
+---
+
 Public Home Assistant add-on repository that wraps the upstream [`haugene/transmission-openvpn`](https://github.com/haugene/docker-transmission-openvpn) Docker image.
 
 The goal is to reuse Haugene's maintained OpenVPN, Transmission, routing and kill-switch scripts while exposing the most common environment variables through the Home Assistant add-on UI.
