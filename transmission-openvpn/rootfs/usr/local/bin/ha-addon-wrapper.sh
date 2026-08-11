@@ -89,5 +89,16 @@ fi
 
 mkdir -p "$TRANSMISSION_HOME" "$TRANSMISSION_DOWNLOAD_DIR" "$TRANSMISSION_INCOMPLETE_DIR" "$TRANSMISSION_WATCH_DIR"
 
+# The NordVPN setup script in haugene/transmission-openvpn treats ICMP ping
+# failure to downloads.nordcdn.com as fatal even when DNS and HTTPS downloads
+# work. On HAOS this can be flaky after restarts and is redundant because this
+# wrapper already validates the exact .ovpn URL with curl above. Downgrade that
+# ping failure to a warning so valid configs still start.
+if [[ "$OPENVPN_PROVIDER" == "NORDVPN" && -f /etc/openvpn/nordvpn/configure-openvpn.sh ]]; then
+  sed -i \
+    's|fatal_error "ERROR: OVPN: cannot ping ${nordvpn_cdn}, network or internet unavailable. Cannot download NORDVPN configuration files"|log "WARNING: OVPN: ping to ${nordvpn_dl} failed; continuing because the HA add-on wrapper already validated the NordVPN config download with curl"|' \
+    /etc/openvpn/nordvpn/configure-openvpn.sh
+fi
+
 echo "Starting haugene/transmission-openvpn for provider=${OPENVPN_PROVIDER}, config=${OPENVPN_CONFIG:-default}, nordvpn_server=${NORDVPN_SERVER:-auto}, local_network=${LOCAL_NETWORK}"
 exec dumb-init /etc/openvpn/start.sh

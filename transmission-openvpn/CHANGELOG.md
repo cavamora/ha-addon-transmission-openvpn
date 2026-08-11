@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.10
+
+- Downgrade NordVPN setup ICMP ping failures to warnings after the wrapper has already validated the exact `.ovpn` download URL with HTTPS. This avoids false startup failures on HAOS when `downloads.nordcdn.com` is reachable by curl but not ping.
+
 ## 1.0.9
 
 - Add the standard Home Assistant add-on Web UI link for Transmission at port `9091`, so the add-on dashboard can show an **Open Web UI** action.
