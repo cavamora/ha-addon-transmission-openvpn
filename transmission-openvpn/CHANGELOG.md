@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.9
+
+- Add the standard Home Assistant add-on Web UI link for Transmission at port `9091`, so the add-on dashboard can show an **Open Web UI** action.
+
 ## 1.0.8
 
 - Store Transmission state under the Home Assistant add-on persistent `/data/transmission-home` path so torrent lists, resume data, and settings survive add-on restarts/rebuilds.
