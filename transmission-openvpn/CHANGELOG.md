@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.8
+
+- Store Transmission state under the Home Assistant add-on persistent `/data/transmission-home` path so torrent lists, resume data, and settings survive add-on restarts/rebuilds.
+- Stop moving `/data/transmission-home` out of the way; for HAOS add-ons, `/data` is the correct persistent storage location.
+
 ## 1.0.7
 
 - Change the default NordVPN server from retired `br125.nordvpn.com` to currently available `br156.nordvpn.com`.
