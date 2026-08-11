@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.6
+
+- Replace the add-on logo with a compact transparent version so Home Assistant does not crop/truncate the artwork in update cards.
+
 ## 1.0.5
 
 - Add a custom Transmission + VPN icon/logo for Home Assistant add-on listings.
