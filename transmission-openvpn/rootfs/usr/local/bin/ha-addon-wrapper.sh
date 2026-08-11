@@ -24,6 +24,16 @@ read_option_trimmed() {
 OPENVPN_PROVIDER_RAW="$(read_option_trimmed OPENVPN_PROVIDER NORDVPN)"
 export OPENVPN_PROVIDER="${OPENVPN_PROVIDER_RAW^^}"
 export OPENVPN_CONFIG="$(read_option_trimmed OPENVPN_CONFIG '')"
+export NORDVPN_SERVER="$(read_option_trimmed NORDVPN_SERVER '')"
+
+# Haugene's NORDVPN provider setup script ignores OPENVPN_CONFIG and instead
+# selects a recommended server from the NordVPN API unless NORDVPN_SERVER is set.
+# Keep the HA add-on UI backwards-compatible: if the user put a NordVPN hostname
+# in OPENVPN_CONFIG, pin that hostname for the NORDVPN setup script too.
+if [[ "$OPENVPN_PROVIDER" == "NORDVPN" && -z "$NORDVPN_SERVER" && "$OPENVPN_CONFIG" == *.nordvpn.com ]]; then
+  export NORDVPN_SERVER="$OPENVPN_CONFIG"
+fi
+
 export OPENVPN_USERNAME="$(read_option_trimmed OPENVPN_USERNAME '')"
 export OPENVPN_PASSWORD="$(read_option OPENVPN_PASSWORD '')"
 export LOCAL_NETWORK="$(read_option_trimmed LOCAL_NETWORK '192.168.0.0/16')"
@@ -68,5 +78,5 @@ fi
 
 mkdir -p "$TRANSMISSION_HOME" "$TRANSMISSION_DOWNLOAD_DIR" "$TRANSMISSION_INCOMPLETE_DIR" "$TRANSMISSION_WATCH_DIR"
 
-echo "Starting haugene/transmission-openvpn for provider=${OPENVPN_PROVIDER}, config=${OPENVPN_CONFIG:-default}, local_network=${LOCAL_NETWORK}"
+echo "Starting haugene/transmission-openvpn for provider=${OPENVPN_PROVIDER}, config=${OPENVPN_CONFIG:-default}, nordvpn_server=${NORDVPN_SERVER:-auto}, local_network=${LOCAL_NETWORK}"
 exec dumb-init /etc/openvpn/start.sh

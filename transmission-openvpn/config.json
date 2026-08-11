@@ -1,6 +1,6 @@
 {
   "name": "Transmission OpenVPN",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "slug": "transmission_openvpn",
   "description": "Transmission BitTorrent client routed through OpenVPN, using haugene/transmission-openvpn.",
   "url": "https://github.com/cavamora/ha-addon-transmission-openvpn/tree/main/transmission-openvpn",
@@ -22,6 +22,7 @@
   "options": {
     "OPENVPN_PROVIDER": "NORDVPN",
     "OPENVPN_CONFIG": "br125.nordvpn.com",
+    "NORDVPN_SERVER": "",
     "OPENVPN_USERNAME": "",
     "OPENVPN_PASSWORD": "",
     "LOCAL_NETWORK": "192.168.0.0/16",
@@ -38,6 +39,7 @@
   "schema": {
     "OPENVPN_PROVIDER": "str",
     "OPENVPN_CONFIG": "str?",
+    "NORDVPN_SERVER": "str?",
     "OPENVPN_USERNAME": "str",
     "OPENVPN_PASSWORD": "password",
     "LOCAL_NETWORK": "str",
