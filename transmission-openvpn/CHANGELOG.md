@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.7
+
+- Change the default NordVPN server from retired `br125.nordvpn.com` to currently available `br156.nordvpn.com`.
+- Add a preflight check for pinned NordVPN server config downloads, so retired hosts fail with a clear add-on error instead of OpenVPN parsing an HTML 404 page.
+
 ## 1.0.6
 
 - Replace the add-on logo with a compact transparent version so Home Assistant does not crop/truncate the artwork in update cards.

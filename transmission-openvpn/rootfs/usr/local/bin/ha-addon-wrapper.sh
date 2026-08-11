@@ -34,6 +34,26 @@ if [[ "$OPENVPN_PROVIDER" == "NORDVPN" && -z "$NORDVPN_SERVER" && "$OPENVPN_CONF
   export NORDVPN_SERVER="$OPENVPN_CONFIG"
 fi
 
+# Haugene downloads NordVPN configs without failing on HTTP 404, so a retired
+# hostname can be saved as an HTML error page and later fail in OpenVPN with:
+# "Options error ...:1: html". Detect that case before starting the upstream
+# script and print a clear add-on error instead.
+if [[ "$OPENVPN_PROVIDER" == "NORDVPN" && -n "$NORDVPN_SERVER" ]]; then
+  NORDVPN_PROTOCOL_CHECK="${NORDVPN_PROTOCOL:-tcp}"
+  if [[ "${NORDVPN_PROTOCOL_CHECK,,}" == *udp* ]]; then
+    NORDVPN_PROTOCOL_CHECK="udp"
+  else
+    NORDVPN_PROTOCOL_CHECK="tcp"
+  fi
+  NORDVPN_CONFIG_URL="https://downloads.nordcdn.com/configs/files/ovpn_${NORDVPN_PROTOCOL_CHECK}/servers/${NORDVPN_SERVER}.${NORDVPN_PROTOCOL_CHECK}.ovpn"
+  if ! curl -fsI --max-time 20 "$NORDVPN_CONFIG_URL" >/dev/null; then
+    echo "ERROR: NordVPN OpenVPN config is not available for ${NORDVPN_SERVER} (${NORDVPN_PROTOCOL_CHECK})."
+    echo "ERROR: Tried ${NORDVPN_CONFIG_URL}"
+    echo "ERROR: Pick another online NordVPN server, for example br156.nordvpn.com, br160.nordvpn.com, or br161.nordvpn.com."
+    exit 1
+  fi
+fi
+
 export OPENVPN_USERNAME="$(read_option_trimmed OPENVPN_USERNAME '')"
 export OPENVPN_PASSWORD="$(read_option OPENVPN_PASSWORD '')"
 export LOCAL_NETWORK="$(read_option_trimmed LOCAL_NETWORK '192.168.0.0/16')"
